@@ -1,0 +1,592 @@
+import java.util.Random;
+import java.util.Scanner;
+import java.util.ArrayList;
+class Quest {
+    private String description;
+    private boolean isCompleted;
+    private int rewardGold;
+    private int rewardExperience;
+
+    public Quest(String description, int rewardGold, int rewardExperience) {
+	this.description = description;
+	this.isCompleted = false;
+	this.rewardGold = rewardGold;
+	this.rewardExperience = rewardExperience;
+    }
+
+    public String getDescription() {
+	return description;
+    }
+
+    public boolean isCompleted() {
+	return isCompleted;
+    }
+
+    public void complete() {
+	isCompleted = true;
+    }
+
+    public int getRewardGold() {
+	return rewardGold;
+    }
+
+    public int getRewardExperience() {
+	return rewardExperience;
+    }
+
+        @Override
+	public String toString() {
+	    return "Quest: " + description + " (Completed: " + isCompleted + ")";
+	}
+}
+
+class Area {
+    private String name;
+    private ArrayList<Enemy> enemies;
+    private ArrayList<Item> items;
+
+    public Area(String name) {
+	this.name = name;
+	this.enemies = new ArrayList<>();
+	this.items = new ArrayList<>();
+	populateArea();
+    }
+
+    private void populateArea() {
+	enemies.add(new Enemy("Goblin", 50, 10, 5, 10));
+	enemies.add(new Enemy("Zombie", 80, 15, 8, 15));
+	items.add(new Item("Small Health Potion", "potion", 20, 10));
+    }
+
+    public String getName() {
+	return name;
+    }
+
+    public ArrayList<Enemy> getEnemies() {
+	return enemies;
+    }
+
+    public ArrayList<Item> getItems() {
+	return items;
+    }
+
+        @Override
+	public String toString() {
+	    return "Area: " + name + ", Enemies: " + enemies.size() + ", Items: " + items.size();
+	}
+}
+
+class Skill {
+    private String name;
+    private String description;
+    private int power;
+
+    public Skill(String name, String description, int power) {
+	this.name = name;
+	this.description = description;
+	this.power = power;
+    }
+
+    public String getName() {
+	return name;
+    }
+
+    public String getDescription() {
+	return description;
+    }
+
+    public int getPower() {
+	return power;
+    }
+
+        @Override
+	public String toString() {
+	    return name + ": " + description + " (Power: " + power + ")";
+	}
+}
+
+
+class Character {
+    private String name;
+    private int level;
+    private int healthPoints;
+    private int attackPower;
+    private int defense;
+    private int experience;
+    private Inventory inventory;
+    private ArrayList<Skill> skills;
+    private ArrayList<Quest> quests;
+
+    public Character(String name) {
+	this.name = name;
+	this.level = 1;
+	this.healthPoints = 100;
+	this.attackPower = 10;
+	this.defense = 5;
+	this.experience = 0;
+	this.inventory = new Inventory();
+	this.skills = new ArrayList<>();
+	this.quests = new ArrayList<>();
+    }
+
+    public String getName() {
+	return name;
+    }
+
+    public int getLevel() {
+	return level;
+    }
+
+    public int getHealthPoints() {
+	return healthPoints;
+    }
+
+    public int getAttackPower() {
+	return attackPower;
+    }
+
+    public int getDefense() {
+	return defense;
+    }
+
+    public int getExperience() {
+	return experience;
+    }
+
+    public void takeDamage(int damage) {
+	int actualDamage = damage - defense;
+	if (actualDamage > 0) {
+	    this.healthPoints -= actualDamage;
+	}
+    }
+
+    public void heal(int healing) {
+	this.healthPoints += healing;
+    }
+
+    public Inventory getInventory() {
+	return inventory;
+    }
+
+    public void gainExperience(int exp) {
+	this.experience += exp;
+	if (this.experience >= level * 10) {
+	    levelUp();
+	}
+    }
+
+    public void levelUp() {
+	this.level++;
+	this.healthPoints += 20;
+	this.attackPower += 5;
+	this.defense += 2;
+	this.experience = 0;
+	System.out.println("Congratulations! You've leveled up to level " + level + "!");
+    }
+
+    public void equipItem(Item item) {
+	if (item.getType().equals("weapon")) {
+	    this.attackPower += item.getValue();
+	} else if (item.getType().equals("armor")) {
+	    this.defense += item.getValue();
+	}
+    }
+
+    public void learnSkill(Skill skill) {
+	skills.add(skill);
+    }
+
+    public void addQuest(Quest quest) {
+	quests.add(quest);
+    }
+
+    public void completeQuest(Quest quest) {
+	if (quests.contains(quest)) {
+	    quest.complete();
+	    inventory.addGold(quest.getRewardGold());
+	    gainExperience(quest.getRewardExperience());
+	    System.out.println("Quest completed! You received " + quest.getRewardGold() + " gold and " + quest.getRewardExperience() + " experience.");
+	}
+    }
+
+    public ArrayList<Skill> getSkills() {
+	return skills;
+    }
+
+    public ArrayList<Quest> getQuests() {
+	return quests;
+    }
+
+        @Override
+	public String toString() {
+	    return "Name: " + name + ", Level: " + level + ", HP: " + healthPoints + ", Attack: " + attackPower + ", Defense: " + defense;
+	}
+}
+
+
+class Enemy {
+    private String name;
+    private int healthPoints;
+    private int attackPower;
+    private int defense;
+    private int experienceValue;
+
+    public Enemy(String name, int healthPoints, int attackPower, int defense, int experienceValue) {
+	this.name = name;
+	this.healthPoints = healthPoints;
+	this.attackPower = attackPower;
+	this.defense = defense;
+	this.experienceValue = experienceValue;
+    }
+
+    public String getName() {
+	return name;
+    }
+
+    public int getHealthPoints() {
+	return healthPoints;
+    }
+
+    public int getAttackPower() {
+	return attackPower;
+    }
+
+    public int getDefense() {
+	return defense;
+    }
+
+    public int getExperienceValue() {
+	return experienceValue;
+    }
+
+    public void takeDamage(int damage) {
+	int actualDamage = damage - defense;
+	if (actualDamage > 0) {
+	    this.healthPoints -= actualDamage;
+	}
+    }
+
+        @Override
+	public String toString() {
+	    return "Enemy: " + name + ", HP: " + healthPoints + ", Attack: " + attackPower + ", Defense: " + defense;
+	}
+}
+
+
+class Item {
+    private String name;
+    private String type; 
+    private int value; 
+    private int price; 
+
+    public Item(String name, String type, int value, int price) {
+	this.name = name;
+	this.type = type;
+	this.value = value;
+	this.price = price;
+    }
+
+    public String getName() {
+	return name;
+    }
+
+    public String getType() {
+	return type;
+    }
+
+    public int getValue() {
+	return value;
+    }
+
+    public int getPrice() {
+	return price;
+    }
+
+        @Override
+	public String toString() {
+	    return name + " (" + type + ", Value: " + value + ", Price: " + price + ")";
+	}
+}
+
+
+class Inventory {
+    private ArrayList<Item> items;
+    private int gold;
+
+    public Inventory() {
+	this.items = new ArrayList<>();
+	this.gold = 100; 
+    }
+
+    public void addItem(Item item) {
+	items.add(item);
+    }
+
+    public void removeItem(Item item) {
+	items.remove(item);
+    }
+
+    public ArrayList<Item> getItems() {
+	return items;
+    }
+
+    public int getGold() {
+	return gold;
+    }
+
+    public void addGold(int amount) {
+	this.gold += amount;
+    }
+
+    public void useItem(Item item, Character character) {
+	if (items.contains(item)) {
+	    switch (item.getType()) {
+	    case "weapon":
+	    case "armor":
+		character.equipItem(item);
+		removeItem(item);
+		break;
+	    case "potion":
+		character.heal(item.getValue());
+		removeItem(item);
+		break;
+	    }
+	} else {
+	    System.out.println("Item not in inventory.");
+	}
+    }
+
+        @Override
+	public String toString() {
+	    return "Inventory: " + items.toString() + ", Gold: " + gold;
+	}
+}
+
+
+class Shop {
+    private ArrayList<Item> stock;
+
+    public Shop() {
+	this.stock = new ArrayList<>();
+	stock.add(new Item("Sword", "weapon", 10, 50));
+	stock.add(new Item("Shield", "armor", 5, 40));
+	stock.add(new Item("Health Potion", "potion", 20, 30));
+    }
+
+    public void displayItems() {
+	System.out.println("Welcome to the shop! Here are the items available:");
+	for (Item item : stock) {
+	    System.out.println(item.toString());
+	}
+    }
+
+    public void buyItem(String itemName, Character character) {
+	for (Item item : stock) {
+	    if (item.getName().equalsIgnoreCase(itemName)) {
+		if (character.getInventory().getGold() >= item.getPrice()) {
+		    character.getInventory().addItem(item);
+		    character.getInventory().addGold(-item.getPrice());
+		    stock.remove(item);
+		    System.out.println("You bought " + item.getName());
+		} else {
+		    System.out.println("Not enough gold.");
+		}
+		return;
+	    }
+	}
+	System.out.println("Item not found.");
+    }
+}
+
+class Game {
+    private Character player;
+    private Shop shop;
+    private ArrayList<Area> areas;
+    private Scanner scanner;
+
+    public Game() {
+        scanner = new Scanner(System.in);
+        shop = new Shop();
+        areas = new ArrayList<>();
+        areas.add(new Area("Forest"));
+        areas.add(new Area("Cave"));
+        areas.add(new Area("Village"));
+    }
+
+    public void start() {
+        System.out.println("Enter your character's name: ");
+        String name = scanner.nextLine();
+        player = new Character(name);
+
+        System.out.println("Welcome, " + player.getName() + "!");
+        
+        while (true) {
+            displayMainMenu();
+            int choice = scanner.nextInt();
+            scanner.nextLine(); 
+
+            switch (choice) {
+                case 1:
+                    fight();
+                    break;
+                case 2:
+                    viewInventory();
+                    break;
+                case 3:
+                    visitShop();
+                    break;
+                case 4:
+                    viewQuests();
+                    break;
+                case 5:
+                    learnSkills();
+                    break;
+                case 6:
+                    exploreArea();
+                    break;
+                case 7:
+                    System.out.println("Exiting game...");
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
+            }
+        }
+    }
+
+    private void displayMainMenu() {
+        System.out.println("\nMain Menu:");
+        System.out.println("1. Fight an enemy");
+        System.out.println("2. View inventory");
+        System.out.println("3. Visit shop");
+        System.out.println("4. View quests");
+        System.out.println("5. Learn skills");
+        System.out.println("6. Explore area");
+        System.out.println("7. Exit");
+        System.out.println("Enter your choice:");
+    }
+
+    private void fight() {
+        Area area = selectRandomArea();
+        Enemy enemy = selectRandomEnemy(area);
+
+        System.out.println("You encounter a " + enemy.getName() + " in the " + area.getName() + "!");
+
+        while (player.getHealthPoints() > 0 && enemy.getHealthPoints() > 0) {
+            displayFightMenu();
+            int choice = scanner.nextInt();
+            scanner.nextLine(); 
+
+            switch (choice) {
+                case 1:
+                    attackEnemy(enemy);
+                    break;
+                case 2:
+                    usePotion();
+                    break;
+                case 3:
+                    useSkill();
+                    break;
+                case 4:
+                    System.out.println("You ran away from the battle.");
+                    return;
+                default:
+                    System.out.println("Invalid choice.");
+                    break;
+            }
+
+            if (enemy.getHealthPoints() > 0) {
+                enemyAttack(enemy);
+            }
+        }
+
+        if (player.getHealthPoints() > 0) {
+            System.out.println("You defeated the " + enemy.getName() + "!");
+            player.gainExperience(enemy.getExperienceValue());
+            player.getInventory().addGold(10); 
+        } else {
+            System.out.println("You were defeated by the " + enemy.getName() + "...");
+        }
+    }
+
+    private Area selectRandomArea() {
+        return areas.get((int) (Math.random() * areas.size()));
+    }
+
+    private Enemy selectRandomEnemy(Area area) {
+        ArrayList<Enemy> enemies = area.getEnemies();
+        return enemies.get((int) (Math.random() * enemies.size()));
+    }
+
+    private void attackEnemy(Enemy enemy) {
+        int damage = player.getAttackPower();
+        enemy.takeDamage(damage);
+        System.out.println("You attack the " + enemy.getName() + " for " + damage + " damage.");
+    }
+
+    private void enemyAttack(Enemy enemy) {
+        int damage = enemy.getAttackPower();
+        player.takeDamage(damage);
+        System.out.println("The " + enemy.getName() + " attacks you for " + damage + " damage.");
+    }
+
+    private void usePotion() {
+        // Implementation of using potion
+        System.out.println("Using potion...");
+    }
+
+    private void useSkill() {
+        // Implementation of using skill
+        System.out.println("Using skill...");
+    }
+
+    private void viewInventory() {
+        System.out.println(player.getName() + "'s Inventory:");
+        System.out.println(player.getInventory());
+    }
+
+    private void visitShop() {
+        shop.displayItems();
+        System.out.println("Enter the name of the item you want to buy:");
+        String itemName = scanner.nextLine();
+        shop.buyItem(itemName, player);
+    }
+
+    private void viewQuests() {
+        System.out.println(player.getName() + "'s Quests:");
+        for (Quest quest : player.getQuests()) {
+            System.out.println(quest);
+        }
+    }
+
+    private void learnSkills() {
+        Skill newSkill = new Skill("Fireball", "A powerful fire attack", 25);
+        player.learnSkill(newSkill);
+        System.out.println("You learned a new skill: " + newSkill.getName());
+    }
+
+    private void exploreArea() {
+        System.out.println("Exploring area..."); 
+       }
+
+    private void displayFightMenu() {
+        System.out.println("\nBattle Menu:");
+        System.out.println("1. Attack");
+        System.out.println("2. Use potion");
+        System.out.println("3. Use skill");
+        System.out.println("4. Run");
+        System.out.println("Enter your choice:");
+    }
+
+    public static void main(String[] args) {
+        Game game = new Game();
+        game.start();
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+	Game game = new Game();
+	game.start();
+    }
+}
